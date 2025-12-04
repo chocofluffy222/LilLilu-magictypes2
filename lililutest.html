@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リルリルたちの心の魔法診断</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: #fff0f5;
+            color: #5d4037;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-image: radial-gradient(#ffe4e1 15%, transparent 16%), radial-gradient(#ffe4e1 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(255, 182, 193, 0.4);
+            border: 4px solid #ffb6c1;
+        }
+        h1 {
+            color: #ff69b4;
+            font-size: 22px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 15px auto;
+            padding: 15px;
+            font-size: 18px;
+            color: white;
+            background-color: #ffb6c1;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #ff91a4;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background-color: #ff69b4;
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+        .hidden { display: none; }
+        
+        #result-img {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 4px solid #ffd700;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff1493;
+            margin: 10px 0;
+        }
+        .result-desc {
+            font-size: 15px;
+            line-height: 1.8;
+            text-align: left;
+            background-color: #fff;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 15px;
+            border: 2px dashed #ffb6c1;
+        }
+
+        /* シェアボタンのデザイン */
+        .share-area {
+            margin-top: 30px;
+            background-color: #f0f8ff;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        .share-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px auto;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border: none;
+            cursor: pointer;
+        }
+        .share-line { background-color: #06c755; }
+        .share-threads { background-color: #000000; }
+        .share-insta { 
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); 
+        }
+
+        /* アニメーション */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container fade-in">
+    <div id="start-screen">
+        <h1>✨リルリルたちの✨<br>心の魔法診断</h1>
+        <p>あなたの隠れた魅力や、<br>みんなを助けている魔法を見つけよう！</p>
+        <div style="margin: 20px 0;">
+            <img src="lillilu.png" style="width:150px; border-radius:50%;">
+        </div>
+        <button class="btn" onclick="startQuiz()">診断をはじめる</button>
+    </div>
+
+    <div id="question-screen" class="hidden">
+        <h2 id="question-text">ここに質問が出ます</h2>
+        <div id="answers"></div>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <h2>あなたのタイプは…</h2>
+        <img id="result-img" src="" alt="結果画像">
+        <div class="result-title" id="result-name">キャラ名</div>
+        <div class="result-desc" id="result-description">説明</div>
+
+        <div class="share-area">
+            <div class="share-title">友達に診断結果を教えよう！</div>
+            
+            <a href="#" id="share-line" class="share-btn share-line" target="_blank">
+                💬 LINEで送る
+            </a>
+
+            <a href="#" id="share-threads" class="share-btn share-threads" target="_blank">
+                🌀 Threadsに投稿
+            </a>
+
+            <button onclick="copyToInsta()" class="share-btn share-insta">
+                📸 文章をコピーしてインスタへ
+            </button>
+        </div>
+
+        <button class="btn" onclick="location.reload()" style="margin-top:20px; background-color:#888;">もう一度やる</button>
+    </div>
+</div>
+
+<script>
+    // ★重要：ここをあなたのGitHubのURLに書き換えてください！
+    // まだ決まってなければこのままでOKです。
+    const siteUrl = "https://chocofluffy222.github.io/lillilu-magictypes/";
+
+    // 診断データ
+    const questions = {
+        q1: {
+            text: "Q1. 落ち込んでいるお友達がいたら、どうしてあげる？",
+            answers: [
+                { text: "🎁 お菓子やお花をプレゼント！", next: "q2_active" },
+                { text: "👂 そばにいて話を聞いてあげる", next: "q2_passive" }
+            ]
+        },
+        q2_active: {
+            text: "Q2. もし魔法が使えるなら、どっちがいい？",
+            answers: [
+                { text: "✨ 空を飛んだり変身したり！", next: "q3_exciting" },
+                { text: "🌸 お花を咲かせたり美味しいものを出す！", next: "q3_creative" }
+            ]
+        },
+        q2_passive: {
+            text: "Q2. 理想の「休日」の過ごし方は？",
+            answers: [
+                { text: "🏰 景色を見ながら思い出にふける", next: "q3_scenery" },
+                { text: "☕ お家で温かいものを飲んでリラックス", next: "q3_relax" }
+            ]
+        },
+        q3_exciting: {
+            text: "Q3. 最後に…いたずらするのは好き？",
+            answers: [
+                { text: "大好き！驚かせたい！", result: "lillilu" },
+                { text: "おしゃべりの方が好き！", result: "finn" }
+            ]
+        },
+        q3_creative: {
+            text: "Q3. 最後に…どんな物をプレゼントするのが好き？",
+            answers: [
+                { text: "手作りのもの", result: "bonbon" },
+                { text: "その人が欲しがっているもの", result: "rosie" }
+            ]
+        },
+        q3_scenery: {
+            text: "Q3. 最後に…ジェットコースターは乗れる？",
+            answers: [
+                { text: "大好き！キャーキャー言いたい！", result: "gigi" },
+                { text: "怖いから無理…夢の世界がいい", result: "levy" }
+            ]
+        },
+        q3_relax: {
+            text: "Q3. ホットココアを飲むなら…？",
+            answers: [
+                { text: "冷ましてから！（猫舌だから）", result: "espie" },
+                { text: "熱々で飲みたい！", result: "lillilu" }
+            ]
+        }
+    };
+
+    const results = {
+        lillilu: {
+            name: "🤡 雨上がりの太陽タイプ<br>（リルリル）",
+            shareName: "雨上がりの太陽タイプ（リルリル）",
+            desc: "<b>【隠れた魅力：無邪気な愛され力】</b><br>あなたはそこにいるだけで周りを明るくする太陽のような人！ちょっとしたユーモアで、みんなの心をフワッと軽くしているよ。",
+            img: "lillilu.png"
+        },
+        finn: {
+            name: "🐸 夏の波しぶきタイプ<br>（フィン）",
+            shareName: "夏の波しぶきタイプ（フィン）",
+            desc: "<b>【隠れた魅力：はじける開放感】</b><br>あなたは心の壁を取り払う天才！「ようこそ！」というあなたの明るい一言が、孤独な誰かの心のドアを開けているよ。",
+            img: "finn.png"
+        },
+        bonbon: {
+            name: "🐻 秋の夕焼けタイプ<br>（ボンボン）",
+            shareName: "秋の夕焼けタイプ（ボンボン）",
+            desc: "<b>【隠れた魅力：ひたむきな信頼感】</b><br>あなたは言葉より行動で示す人。コツコツ頑張るその背中に、みんなは「あなたなら任せられる」と勇気をもらっているよ。",
+            img: "bonbon.png"
+        },
+        rosie: {
+            name: "🐰 春のそよ風タイプ<br>（ロージー）",
+            shareName: "春のそよ風タイプ（ロージー）",
+            desc: "<b>【隠れた魅力：天真爛漫なハッピーオーラ】</b><br>喜びをシェアする天才！素敵なものを見つけたら一番に誰かに伝えるその純粋さが、みんなの日常をカラフルにしているよ。",
+            img: "rosie.png"
+        },
+        gigi: {
+            name: "🦒 夜明けの朝日タイプ<br>（ジジ）",
+            shareName: "夜明けの朝日タイプ（ジジ）",
+            desc: "<b>【隠れた魅力：おだやかな見守り力】</b><br>一歩引いて全体を見る安心感の持ち主。みんなが気づかない小さな変化にも気づく賢さが、実はチームの危機を救っているよ。",
+            img: "gigi.png"
+        },
+        levy: {
+            name: "🦄 夜空の星タイプ<br>（レヴィ）",
+            shareName: "夜空の星タイプ（レヴィ）",
+            desc: "<b>【隠れた魅力：静かなる癒やしの光】</b><br>暗闇でこそ輝く希望の星。落ち込んでいる時にあなたがかけてくれる優しい言葉は、迷っている人の道しるべになっているよ。",
+            img: "levy.png"
+        },
+        espie: {
+            name: "🐘 冬の毛布タイプ<br>（エスピ）",
+            shareName: "冬の毛布タイプ（エスピ）",
+            desc: "<b>【隠れた魅力：深くて温かい包容力】</b><br>言葉にならない声を聞くやさしさの持ち主。アドバイスより、ただ静かに寄り添ってくれるその温もりに、多くの人が救われているよ。",
+            img: "espie.png"
+        }
+    };
+
+    let currentResultData = null;
+
+    function startQuiz() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('question-screen').classList.remove('hidden');
+        showQuestion('q1');
+    }
+
+    function showQuestion(qId) {
+        const qData = questions[qId];
+        document.getElementById('question-text').innerText = qData.text;
+        const answersDiv = document.getElementById('answers');
+        answersDiv.innerHTML = "";
+
+        qData.answers.forEach(ans => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = ans.text;
+            btn.onclick = () => {
+                if (ans.next) {
+                    showQuestion(ans.next);
+                } else {
+                    showResult(ans.result);
+                }
+            };
+            answersDiv.appendChild(btn);
+        });
+    }
+
+    function showResult(rId) {
+        currentResultData = results[rId];
+        document.getElementById('question-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        
+        document.getElementById('result-img').src = currentResultData.img;
+        document.getElementById('result-name').innerHTML = currentResultData.name;
+        document.getElementById('result-description').innerHTML = currentResultData.desc;
+
+        // シェア用テキストの作成
+        const shareText = `【リルリルたちの心の魔法診断】\n私のタイプは…\n✨ ${currentResultData.shareName} ✨ でした！\n\nあなたのタイプはどれかな？診断してみてね！\n#リルリル #心の魔法診断`;
+        
+        // LINEボタンの設定
+        document.getElementById('share-line').href = `https://line.me/R/msg/text/?${encodeURIComponent(shareText + "\n" + siteUrl)}`;
+        
+        // Threadsボタンの設定
+        document.getElementById('share-threads').href = `https://www.threads.net/intent/post?text=${encodeURIComponent(shareText + "\n" + siteUrl)}`;
+    }
+
+    function copyToInsta() {
+        const shareText = `【リルリルたちの心の魔法診断】\n私のタイプは…\n✨ ${currentResultData.shareName} ✨ でした！\n\nあなたのタイプはどれかな？診断してみてね！\n\n👇ここから診断！\n${siteUrl}`;
+        
+        navigator.clipboard.writeText(shareText).then(() => {
+            alert("文章をコピーしました！\nInstagramを開きます。ストーリーなどに貼り付けて使ってね📸");
+            window.location.href = "instagram://app"; // アプリを開く（スマホのみ）
+        }).catch(err => {
+            alert("コピーに失敗しました💦");
+        });
+    }
+</script>
+
+</body>
+</html>
